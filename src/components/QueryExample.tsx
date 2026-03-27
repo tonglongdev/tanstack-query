@@ -1,6 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
-async function fetchPosts() {
+interface Post {
+  id: number;
+  title: string;
+  body: string;
+}
+
+async function fetchPosts(): Promise<Post[]> {
   const res = await fetch(
     "https://jsonplaceholder.typicode.com/posts?_limit=5",
   );
@@ -8,16 +15,20 @@ async function fetchPosts() {
 }
 
 export default function QueryExample() {
-  const { isPending, error, data } = useQuery({
+  const [isLoadData, setIsLoadData] = useState(false);
+  const { isLoading, error, data, refetch } = useQuery({
     queryKey: ["posts"],
     queryFn: fetchPosts,
+    enabled: isLoadData,
   });
   return (
     <div className="section">
       <h2>1. Intro and Setup</h2>
       <p>This is the manual version without TanStack Query .</p>
+      <button onClick={() => setIsLoadData(true)}>Load Posts</button>
+      <button onClick={() => refetch()}>Refetch Posts</button>
 
-      {isPending && <p>Loading ...</p>}
+      {isLoading && <p>Loading ...</p>}
       {error && <p>Something went wrong</p>}
 
       {data &&
